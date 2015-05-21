@@ -151,8 +151,9 @@
 					// this component is a variable
 					NSString *variableName = [patternComponent substringFromIndex:1];
 					NSString *variableValue = URLComponent;
-					if ([variableName length] > 0) {
-						variables[variableName] = [variableValue JLRoutes_URLDecodedStringReplacingPlusSymbols:[JLRoutes shouldDecodePlusSymbols]];
+                    NSString *urlDecodedVariableValue = [variableValue JLRoutes_URLDecodedStringReplacingPlusSymbols:[JLRoutes shouldDecodePlusSymbols]];
+                    if ([variableName length] > 0 && [urlDecodedVariableValue length] > 0) {
+                        variables[variableName] = urlDecodedVariableValue;
 					}
 				} else if ([patternComponent isEqualToString:@"*"]) {
 					// match wildcards

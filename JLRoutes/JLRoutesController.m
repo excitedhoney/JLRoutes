@@ -57,18 +57,27 @@
 	JLRouteDefinition *route = [[JLRouteDefinition alloc] initWithPattern:routePattern priority:priority handler:handlerBlock];
 	route.parentRoutesController = self;
 	
-	if (priority == 0) {
+    if (priority == 0 || self.routes.count == 0) {
 		[self.routes addObject:route];
 	} else {
 		NSArray *existingRoutes = self.routes;
 		NSUInteger index = 0;
+        BOOL addedRoute = NO;
+        
+        // search through existing routes looking for a lower priority route than this one
 		for (JLRouteDefinition *existingRoute in existingRoutes) {
 			if (existingRoute.priority < priority) {
+                // if found, add the route after it
 				[self.routes insertObject:route atIndex:index];
+                addedRoute = YES;
 				break;
 			}
 			index++;
 		}
+        
+        // if we weren't able to find a lower priority route, this is the new lowest priority route (or same priority as self.routes.lastObject) and should just be added
+        if (!addedRoute)
+            [self.routes addObject:route];
 	}
 	
 	return route;
@@ -163,7 +172,7 @@
 	// break the URL down into path components and filter out any leading/trailing slashes from it
 	NSArray *pathComponents = [(URL.pathComponents ?: @[]) filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF like '/'"]];
 	
-	if ([URL.host rangeOfString:@"."].location == NSNotFound) {
+    if ([URL.host rangeOfString:@"."].location == NSNotFound && ![URL.host isEqualToString:@"localhost"]) {
 		// For backward compatibility, handle scheme://path/to/ressource as if path was part of the
 		// path if it doesn't look like a domain name (no dot in it)
 		pathComponents = [@[URL.host] arrayByAddingObjectsFromArray:pathComponents];
