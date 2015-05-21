@@ -113,7 +113,9 @@ static BOOL shouldDecodePlusSymbols = YES;
 
 + (BOOL)canRouteURL:(NSURL *)URL withParameters:(NSDictionary *)parameters
 {
-    return [[self globalRoutes] canRouteURL:URL withParameters:parameters];
+    // figure out which routes controller to use based on the scheme
+    JLRoutesController *routesController = [self routesControllerMap][[URL scheme]] ?: [self globalRoutes];
+    return [routesController canRouteURL:URL withParameters:parameters];
 }
 
 + (void)reset
